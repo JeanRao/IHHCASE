@@ -1,0 +1,21 @@
+{
+  "articles": [
+    {
+      "path": "about.html",
+      "title": "About this site",
+      "description": "Some additional details about the website",
+      "author": [],
+      "contents": "\r\n\r\n\r\n\r\n",
+      "last_modified": "2022-04-16T21:40:26+08:00"
+    },
+    {
+      "path": "index.html",
+      "title": "ELECTIVE SURGERY  SCHEDULE",
+      "description": "solution to predict the number of surgeries for the following days given historical data\n",
+      "author": [],
+      "contents": "\r\nProblem statement\r\nIn this case, we aim to predict the number of surgeries given the\r\nscheduled elective surgery records of 4 weeks. All available data can be\r\nsummarized with the following 2 graphs\r\n\r\n\r\n\r\n\r\n\r\n\r\nSesonality\r\nWeekly trend: Doctors prefer Mondays to Fridays.\r\nAutocorrelation\r\nFrom the case documentation we know that doctors tend to schedule\r\nelective surgery to circumvent public holidays and certain big events.\r\nWhich intuitively suggests that the number of surgeries may be\r\ncorrelated with historical data. From the exhibit 1, we can find a vague\r\npattern of the daily surgery, which is that a busy day is often\r\nsurrounded by several idle days, and a relaxed day is often accompanied\r\nby several busy days. This indicates autoregressive correlations. Given\r\nthe stationary demand of elective surgery, we can assume that the daily\r\nsurgery follows a stationary trend.\r\nCapturing\r\nvolatility(emergency cases)\r\nThe trend of emergency cases cannot be predicted as elective\r\nsurgeries. But intuitively we know that if it can be captured by the\r\nvolatility of the total surgeries. For example, normally the number of\r\nemergency cases occur randomly at a low level. But a fire in the\r\nneighborhood result in a peak of volatility followed by a short flat and\r\nthen another peak, since the patients are served and the emergency case\r\nreturn to its normal low level. This can be modeled with a GARCH\r\nmodel.\r\nTesting for stationarity\r\nSince the data is too small, I do not perform stationarity checking\r\nusing Dickey-Fuller test.\r\nToy data generation\r\nGiven the stationary property of the elective surgery data. I will\r\ngenerate random noraml data for toying and modeling. Note that affected\r\nby macro factors such as economy demographic changing such as aging and\r\nthe shifting of people’s attitude towards healthcare, the data cannot be\r\nperfectly stationary without any deterministic trends. But I assume\r\nwithin one year, these macro factor do not affect the stationarity.\r\n\r\n           Surgery\r\n2011-10-10     106\r\n2011-10-11     121\r\n2011-10-12     126\r\n2011-10-13     114\r\n2011-10-14     106\r\n2011-10-17     111\r\n2011-10-18     122\r\n2011-10-19     127\r\n2011-10-20     116\r\n2011-10-21      99\r\n2011-10-24      99\r\n2011-10-25     114\r\n2011-10-26     103\r\n2011-10-27     126\r\n2011-10-28     103\r\n2011-10-31     118\r\n2011-11-01     108\r\n2011-11-02     121\r\n2011-11-03     114\r\n2011-11-04     102\r\n\r\n\r\n\r\n\r\n\r\nLSTM model\r\nSince we have the data of 28 days elective surgery scheduling. Not\r\nusing them will waste these highly informative data. we can try a LSTM\r\nmodel to do the trick. input shape will be 336x28x1. As ancient\r\nscheduling are likely to change, more recent sheduling are more urgent\r\nand less likely to change.\r\n\r\n\r\n\r\nPossible reinforcement\r\nlearning model?\r\nProgressive Self Attention GANs for Synthetic Time Series\r\n\r\n\r\n\r\n",
+      "last_modified": "2022-04-17T12:29:39+08:00"
+    }
+  ],
+  "collections": []
+}

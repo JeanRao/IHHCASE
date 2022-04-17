@@ -1,0 +1,103 @@
+---
+title: "ELECTIVE SURGERY  SCHEDULE"
+description: |
+  solution to predict the number of surgeries for the following days given historical data
+site: distill::distill_website
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Learn more about creating websites with Distill at:
+# https://rstudio.github.io/distill/website.html
+
+# Learn more about publishing to GitHub Pages at:
+# https://rstudio.github.io/distill/publish_website.html#github-pages
+
+```
+
+# Problem statement
+
+In this case, we aim to predict the number of surgeries given the scheduled elective surgery records of 4 weeks.
+All available data can be summarized with the following 2 graphs
+
+```{r}
+library(knitr)    # For knitting document and include_graphics function
+library(ggplot2)  # For plotting
+library(png)
+```
+
+```{r include=FALSE}
+img1_path <- "data1.png"
+img1 <- readPNG(img1_path, native = TRUE, info = TRUE)
+attr(img1, "info")
+img2_path <- "data2.png"
+img2 <- readPNG(img1_path, native = TRUE, info = TRUE)
+attr(img2, "info")
+```
+
+```{r echo=FALSE}
+include_graphics(img1_path)
+include_graphics(img2_path)
+```
+### Sesonality
+Weekly trend: Doctors prefer Mondays to Fridays.
+
+### Autocorrelation
+From the case documentation we know that doctors tend to schedule elective surgery to circumvent public holidays and certain big events. Which intuitively suggests that the number of surgeries may be correlated with historical data. From the exhibit 1, we can find a vague pattern of the daily surgery, which is that a busy day is often surrounded by several idle days, and a relaxed day is often accompanied by several busy days. This indicates autoregressive correlations. Given the stationary demand of elective surgery, we can assume that the daily surgery follows a stationary trend.
+
+## Capturing volatility(emergency cases)
+The trend of emergency cases cannot be predicted as elective surgeries. But intuitively we know that if it can be captured by the volatility of the total surgeries. For example, normally the number of emergency cases occur randomly at a low level. But a fire in the neighborhood result in a peak of volatility followed by a short flat and then another peak, since the patients are served and the emergency case return to its normal low level. This can be modeled with a GARCH model.
+
+### Testing for stationarity 
+Since the data is too small, I do not perform stationarity checking using Dickey-Fuller test.
+
+### Toy data generation
+Given the stationary property of the elective surgery data. I will generate random noraml data for toying and modeling.
+Note that affected by macro factors such as economy demographic changing such as aging and the shifting of people's attitude towards healthcare, the data cannot be perfectly stationary without any deterministic trends. But I assume within one year, these macro factor do not affect the stationarity. 
+
+```{r} 
+library(data.table)
+df <- fread(file='data.csv',header=TRUE,select=c(1,3))
+colnames(df) <- c('Date','Surgery')
+class(df) <- class(as.data.frame(df))
+library(xts)
+library(dplyr)
+dates=as.Date(df$Date, tryFormats = "%d/%m/%Y")
+df$Date=dates
+df = subset(df, select = -c(Date))
+df<-xts(x = df, order.by = dates)
+df$Surgery=as.numeric(as.character(df$Surgery))
+df#df=as.ts(df)
+plot.xts(df$Surgery)
+```
+```{r}
+t0<-as.integer(rnorm(n =336,mean=107,sd=6))
+xdf=data.frame(t0)
+m=107
+
+for (x in seq.int(28))
+{
+  m=m-3
+  tx<-as.integer(rnorm(n =336,mean=m,sd=6))
+  xdf$x=tx
+  nm=paste('t',as.character(x),sep='')
+  colnames(xdf)[x] <- nm
+  
+}
+library(ggplot2)
+library(reshape2)
+xdf$time=seq.int(336)
+xdf <- melt(xdf ,  id.vars = 'time', variable.name = 'series')
+ggplot(xdf, aes(time, value)) +
+  geom_line(aes(colour = series))
+```
+
+# LSTM model
+Since we have the data of 28 days elective surgery scheduling. Not using them will waste these highly informative data. we can try a LSTM model to do the trick. input shape will be 336x28x1. As ancient scheduling are likely to change, more recent sheduling are more urgent and less likely to change.
+
+```{r}
+
+```
+# Possible reinforcement learning model?
+Progressive Self Attention GANs for Synthetic Time Series
